@@ -5,9 +5,6 @@ from . import pattern
 from . import config
 
 
-VARIABLES = ["NAME", "DESCRIPTION", "URL", "EMAIL", "AUTHOR", "REQUIRES_PYTHON", "VERSION", "PROJECT_LICENSE", "CLASSIFIERS"]
-
-
 @click.group()
 @click.pass_context
 def cli(some=None):
