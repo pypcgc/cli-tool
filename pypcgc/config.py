@@ -1,5 +1,4 @@
 import os
-import re
 
 
 CONFIG_FILE_PATH = "{0}/.pypcgc".format(os.getenv("HOME"))
