@@ -85,8 +85,6 @@ def set(email, author, version, required_python, project_license, default_patter
     if project_license:
         config.write("project_license={0}".format(default_pattern))
 
-    print(config.read())
-
 def main():
     try:
         cli()
