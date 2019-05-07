@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+import pypcgc.__version__
 
 
 NAME = 'pypcgc'
@@ -7,7 +8,7 @@ URL = 'https://github.com/pypcgc/cli-tool'
 EMAIL = '0radimkozak0@gmail.com'
 AUTHOR = 'worepix'
 REQUIRES_PYTHON = '>=3.6.0'
-VERSION = '0.1.0'
+VERSION = pypcgc.__version__.__version__
 LICENSE = 'MIT'
 CLASSIFIERS = [
         'Programming Language :: Python'

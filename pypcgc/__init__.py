@@ -3,9 +3,11 @@ import os
 import click
 from . import pattern
 from . import config
+from . import __version__
 
 
 @click.group()
+@click.version_option(version=__version__.__version__)
 @click.pass_context
 def cli(some=None):
     pass
@@ -65,8 +67,7 @@ def init(name, custom, email, author, version, required_python, project_license)
 @click.option("--version", "-v", help="Set default version")
 @click.option("--required_python", "-rp", help="Set default python version required")
 @click.option("--project_license", "-l", help="Set default license")
-@click.option("--default_pattern", "-p", help="Set default pattern git repository")
-def set(email, author, version, required_python, project_license, default_pattern):
+def set(email, author, version, required_python, project_license):
     if email:
         config.write("email={0}".format(email))
 
@@ -80,7 +81,7 @@ def set(email, author, version, required_python, project_license, default_patter
         config.write("required_python={0}".format(required_python))
 
     if project_license:
-        config.write("project_license={0}".format(default_pattern))
+        config.write("project_license={0}".format(project_license))
 
 def main():
     try:
