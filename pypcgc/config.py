@@ -1,9 +1,15 @@
 import os
 
 
-CONFIG_FILE_PATH = "{0}/.pypcgc".format(os.getenv("HOME"))
+CONFIG_FILE_PATH = "{0}/.pypcgc".format(os.path.expanduser("~"))
+
+def exists():
+    return os.path.isfile(CONFIG_FILE_PATH)
 
 def write(value):
+    if not exists():
+        open(CONFIG_FILE_PATH, "w")
+
     config_file_lines = open(CONFIG_FILE_PATH).readlines()
 
     atributes = value.split("=")
@@ -31,5 +37,3 @@ def read():
 
     return config
 
-def exists():
-    return os.path.isfile(CONFIG_FILE_PATH)
