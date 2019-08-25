@@ -5,6 +5,7 @@ from . import pattern
 from . import config
 from . import __version__
 
+cnf = config.Config()
 
 @click.group()
 @click.version_option(version=__version__.__version__)
@@ -12,76 +13,75 @@ from . import __version__
 def cli(some=None):
     pass
 
-@cli.command("init", help="Download and initialize pattern")
-@click.option("--name", "-n", help="Enter package name", required=True)
-@click.option("--custom", "-c", help="Custom pattern")
-@click.option("--email", "-e", help="Email")
-@click.option("--author", "-a", help="Author name")
-@click.option("--version", "-v", help="Version")
-@click.option("--required_python", "-rp", help="Python version required")
-@click.option("--project_license", "-l", help="License")
-def init(name, custom, email, author, version, required_python, project_license):
+@cli.command('init', help='Download and initialize pattern')
+@click.option('--name', '-n', help='Enter package name', required=True)
+@click.option('--custom', '-c', help='Custom pattern')
+@click.option('--email', '-e', help='Email')
+@click.option('--author', '-a', help='Author name')
+@click.option('--version', '-v', help='Version')
+@click.option('--requires_python', '-rp', help='Python version required')
+@click.option('--project_license', '-l', help='License')
+def init(name, custom, email, author, version, requires_python, project_license):
     if custom:
         pattern.download(custom)
 
     else:
-        pattern.download("https://github.com/pypcgc/pattern.git")
+        pattern.download('https://github.com/pypcgc/pattern.git')
 
-    config_params = {}
-
-    if config.exists():
-        config_params = config.read()
-
-    config_params["name"] = name
+    if cnf.exist:
+        config_params = cnf.read()
 
     if email:
-        config_params["email"] = email
+        config_params['author']['email'] = email
 
     if author:
-        config_params["author"] = author
+        config_params['author']['name'] = author
 
     if version:
-        config_params["version"] = version
+        config_params['project']['version'] = version
 
-    if required_python:
-        config_params["required_python"] = required_python
+    if requires_python:
+        config_params['project']['requires_python'] = requires_python
 
     if project_license:
-        config_params["config_params"] = project_license
+        config_params['project']['license'] = project_license
 
-    os.rename("{{NAME}}", name)
+    os.rename('{{PROJECT}}', name)
 
-    setup_lines = open("setup.py").read()
+    setup_lines = open('setup.py').read()
 
-    for param in config_params.keys():
-        setup_lines = setup_lines.replace("{{" + param.upper() + "}}", config_params.get(param))
+    for group in config_params.keys():
+        for attribute in config_params[group]:
+            setup_lines = setup_lines.replace('{{' + attribute.upper() + '}}',
+                                              config_params[group].get(attribute))
 
-    open("setup.py", "w").write(setup_lines)
+    setup_lines = setup_lines.replace('{{PROJECT}}', name)
 
+    open('setup.py', 'w').write(setup_lines)
 
-
-
-@cli.command("set", help="Set default values to not write them repeatedly")
-@click.option("--email", "-e", help="Set default email")
-@click.option("--author", "-a", help="Set default author name")
-@click.option("--version", "-v", help="Set default version")
-@click.option("--required_python", "-rp", help="Set default python version required")
-@click.option("--project_license", "-l", help="Set default license")
-def set(email, author, version, required_python, project_license):
+@cli.command('set', help='Set default values to not write them repeatedly')
+@click.option('--email', '-e', help='Set default email')
+@click.option('--author', '-a', help='Set default author name')
+@click.option('--version', '-v', help='Set default version')
+@click.option('--requires_python', '-rp', help='Set default python version required')
+@click.option('--project_license', '-l', help='Set default license')
+def set_config(email, author, version, requires_python, project_license):
     if email:
-        config.write("email={0}".format(email))
+        cnf.set_to_config('author', 'email', email)
 
     if author:
-        config.write("author={0}".format(author))
+        cnf.set_to_config('author', 'name', author)
 
     if version:
-        config.write("version={0}".format(version))
+        cnf.set_to_config('project', 'version', version)
 
-    if required_python:
-        config.write("required_python={0}".format(required_python))
+    if requires_python:
+        cnf.set_to_config('project', 'requires_python', requires_python)
 
     if project_license:
-        config.write("project_license={0}".format(project_license))
+        cnf.set_to_config('project', 'license', project_license)
+
+    cnf.write()
 
 def main():
     try:
@@ -89,5 +89,5 @@ def main():
     except KeyboardInterrupt:
         pass
     except Exception as e:
-        click.echo("Exited with {0}".format(e))
+        click.secho('Exited with {0}'.format(e), fg='red')
         sys.exit(1)

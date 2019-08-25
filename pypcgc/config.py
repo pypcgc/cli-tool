@@ -1,39 +1,28 @@
 import os
+import yaml
 
+CONFIG_FILE_PATH = '{0}/.pypcgc.yaml'.format(os.path.expanduser("~"))
 
-CONFIG_FILE_PATH = "{0}/.pypcgc".format(os.path.expanduser("~"))
+class Config:
+    def __init__(self):
+        self.exist = os.path.isfile(CONFIG_FILE_PATH)
+        if self.exist:
+            self._config = yaml.load(open(CONFIG_FILE_PATH, 'r').read(),
+            Loader=yaml.loader.FullLoader)
 
-def exists():
-    return os.path.isfile(CONFIG_FILE_PATH)
+        else:
+            self._config = {}
 
-def write(value):
-    if not exists():
-        open(CONFIG_FILE_PATH, "w")
+    def read(self):
+        return self._config
 
-    config_file_lines = open(CONFIG_FILE_PATH).readlines()
+    def write(self):
+        if self._config is not {}:
+            open(CONFIG_FILE_PATH, 'w'
+                ).write(yaml.dump(self._config, default_flow_style=False))
 
-    atributes = value.split("=")
-    position = 0
-    found = False
-
-    for line in config_file_lines:
-        if atributes[0] in line:
-            config_file_lines[position] = value + "\n"
-            found = True
-        position += 1
-
-    if not found:
-        config_file_lines.append(value + "\n")
-
-    open(CONFIG_FILE_PATH, "w").writelines(config_file_lines)
-
-def read():
-    config_file_lines = open(CONFIG_FILE_PATH).readlines()
-    config = {}
-
-    for line in config_file_lines:
-        atribute = line.split("=")
-        config[atribute[0]] = atribute[1][:-1]
-
-    return config
-
+    def set_to_config(self, group, key, value):
+        try:
+            self._config[group].update({key: value})
+        except Exception:
+            self._config.update({group: {key: value}})
